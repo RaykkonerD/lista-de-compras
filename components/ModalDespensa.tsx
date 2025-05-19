@@ -1,12 +1,21 @@
-import { Dispatch, SetStateAction } from 'react';
-import { Modal, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { Dispatch, SetStateAction, useState } from 'react';
+import { Modal, StyleSheet, Text, View, TouchableOpacity, TextInput } from 'react-native';
+import { IListaContexto } from '@/contexts/ListaContexto';
 
-interface IModalDespensa {
-  visivel: boolean,
-  setVisivel: Dispatch<SetStateAction<boolean>>
+interface IModalDespensa extends IListaContexto {
+  visivel: boolean;
+  setVisivel: Dispatch<SetStateAction<boolean>>;
 }
 
-export default function ModalDespensa({ visivel, setVisivel }: IModalDespensa) {
+export default function ModalDespensa({ visivel, setVisivel, listaltens, adicionaItem, removeItem }: IModalDespensa) {
+  const [categoria, setCategoria] = useState("");
+  const [item, setItem] = useState("");
+
+  const handleAdd = () => {
+    adicionaItem(categoria, item);
+    setVisivel(false);
+  }
+
   return (
     <Modal
       animationType="slide"
@@ -16,9 +25,11 @@ export default function ModalDespensa({ visivel, setVisivel }: IModalDespensa) {
       <View style={styles.centeredView}>
         <View style={styles.modalView}>
           <Text style={styles.modalText}>Hello World!</Text>
+          <TextInput value={categoria} onChangeText={setCategoria} />
+          <TextInput value={item} onChangeText={setItem} />
           <TouchableOpacity
             style={styles.button}
-            onPress={() => setVisivel(!visivel)}
+            onPress={handleAdd}
           >
             <Text style={styles.textStyle}>Adicionar</Text>
           </TouchableOpacity>
