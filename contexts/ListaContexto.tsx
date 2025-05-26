@@ -1,6 +1,6 @@
 import { createContext, useState, ReactNode } from "react";
 
-interface Item {
+export interface Item {
     nome: string;
     quantidadeDespensa: number;
     quantidadeLista: number;
@@ -24,6 +24,20 @@ interface ListaContextoProps {
 export const ContextoListaltens = createContext<IListaContexto | undefined>(undefined);
 
 export function ListaContexto({ children }: ListaContextoProps) {
+    const mock = [{ 
+        nome: "Categoria 1", 
+        itens: [
+            {
+                nome: "Item 1",
+                quantidadeDespensa: 6,
+                quantidadeLista: 2
+            },
+            {
+                nome: "Item 2",
+                quantidadeDespensa: 3
+            }
+        ] 
+    }];
     const [listaltens, setListaltens] = useState<ICategoria[]>([]);
 
     const adicionaItem = (categoria: string, nomeItem: string) => {
@@ -46,8 +60,9 @@ export function ListaContexto({ children }: ListaContextoProps) {
     const removeItem = (categoria: string, indexItem: number) => {
         const indexAEditar = listaltens.findIndex((c: ICategoria) => c.nome === categoria);
         let copiaLista = [...listaltens];
-        copiaLista[indexAEditar].itens.filter(({ el, i }: { el: Item; i: number }) => i !== indexItem);
+        copiaLista[indexAEditar].itens.filter((el: Item, i: number) => i != indexItem);
         setListaltens(copiaLista);
+        console.log(listaltens, indexItem)
     }
 
     return (

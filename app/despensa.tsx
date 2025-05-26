@@ -1,8 +1,8 @@
 import ModalDespensa from "@/components/ModalDespensa";
 import { useContext, useState } from "react";
-import {  Text,  TouchableOpacity,  View,  StyleSheet,  FlatList } from "react-native";
-import { AntDesign } from "@expo/vector-icons";
-import {  ContextoListaltens,  ICategoria,  IListaContexto } from "@/contexts/ListaContexto";
+import { Text, TouchableOpacity, View, StyleSheet, FlatList } from "react-native";
+import { AntDesign, Feather } from "@expo/vector-icons";
+import { ContextoListaltens, ICategoria, IListaContexto, Item } from "@/contexts/ListaContexto";
 
 export default function Index() {
   const [modalVisivel, setModalVisivel] = useState<boolean>(false);
@@ -27,16 +27,34 @@ export default function Index() {
     <View
       style={{
         flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
+        paddingTop: 10
       }}
     >
       {listaltens.map(({ nome, itens }: ICategoria) => (
-        <View>
-          <Text>{nome}</Text>
-          {itens.map((e) => (
-            <Text>{e.nome} - {e.quantidadeDespensa}</Text>
-          ))}
+        <View style={styles.categoriaView}>
+          <Text style={styles.categoriaNome}>{nome}</Text>
+          <FlatList
+            data={itens}
+            renderItem={({ item, index }) => (
+              <View style={styles.item}>
+                <View style={{ flexDirection: "row", gap: 20 }}>
+                  <TouchableOpacity style={{ marginRight: 15 }} onPress={() => removeItem(nome, index)}>
+                    <Feather name="trash-2" size={24} color="black" />
+                  </TouchableOpacity>
+                  <Text>{item.nome}</Text>
+                </View>
+                <View style={{ flexDirection: "row", gap: 10 }}>
+                  <TouchableOpacity>
+                    <AntDesign name="minuscircleo" size={24} color="black" />
+                  </TouchableOpacity>
+                  <Text>{item.quantidadeDespensa}</Text>
+                  <TouchableOpacity>
+                    <AntDesign name="pluscircleo" size={24} color="black" />
+                  </TouchableOpacity>
+                </View>
+
+              </View>
+            )} />
         </View>
       ))}
       <ModalDespensa
@@ -60,4 +78,19 @@ const styles = StyleSheet.create({
     bottom: 30,
     right: 30,
   },
+  categoriaView: {
+    marginBottom: 10
+  },
+  categoriaNome: {
+    alignSelf: "stretch",
+    padding: 5,
+    backgroundColor: "#006494",
+    color: "#c9f0ff",
+  },
+  item: {
+    flexDirection: "row",
+    paddingHorizontal: 10,
+    justifyContent: "space-between",
+    marginTop: 10
+  }
 });
