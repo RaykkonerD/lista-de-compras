@@ -12,16 +12,21 @@ export interface ICategoria {
 }
 
 export interface IListaContexto {
-    listaltens: ICategoria[];
+    listaItens: ICategoria[];
     adicionaItem: (categoria: string, nomeItem: string) => void;
     removeItem: (categoria: string, indexItem: number) => void;
+    somaItemDaDespensa: (indexCategoria: number, indexItem: number) => void;
+    subtraiItemDaDespensa: (indexCategoria: number, indexItem: number) => void;
+    somaItemDaLista: (indexCategoria: number, indexItem: number) => void;
+    subtraiItemDaLista: (indexCategoria: number, indexItem: number) => void;
+    removeCategoria: (index: number) => void;
 }
 
 interface ListaContextoProps {
     children: ReactNode;
 }
 
-export const ContextoListaltens = createContext<IListaContexto | undefined>(undefined);
+export const ContextoListaItens = createContext<IListaContexto | undefined>(undefined);
 
 export function ListaContexto({ children }: ListaContextoProps) {
     const mock = [{ 
@@ -38,10 +43,14 @@ export function ListaContexto({ children }: ListaContextoProps) {
             }
         ] 
     }];
-    const [listaltens, setListaltens] = useState<ICategoria[]>([]);
+    const [listaItens, setListaItens] = useState<ICategoria[]>([]);
+
+    const removeCategoria = (index: number) => {
+        setListaItens(listaItens.filter((c: ICategoria, i: number) => i !== index));
+    }
 
     const adicionaItem = (categoria: string, nomeItem: string) => {
-        const indexAEditar = listaltens.findIndex((c: ICategoria) => c.nome === categoria);
+        const indexAEditar = listaItens.findIndex((c: ICategoria) => c.nome === categoria);
         const item: Item = {
             nome: nomeItem,
             quantidadeDespensa: 0,
@@ -49,25 +58,65 @@ export function ListaContexto({ children }: ListaContextoProps) {
         }
 
         if (indexAEditar >= 0) {
-            let copialista = [...listaltens];
+            let copialista = [...listaItens];
             copialista[indexAEditar].itens.push(item);
-            setListaltens(copialista);
+            setListaItens(copialista);
         } else {
-            setListaltens([...listaltens, { nome: categoria, itens: [item] }]);
+            setListaItens([...listaItens, { nome: categoria, itens: [item] }]);
         };
     }
 
     const removeItem = (categoria: string, indexItem: number) => {
-        const indexAEditar = listaltens.findIndex((c: ICategoria) => c.nome === categoria);
-        let copiaLista = [...listaltens];
-        copiaLista[indexAEditar].itens.filter((el: Item, i: number) => i != indexItem);
-        setListaltens(copiaLista);
-        console.log(listaltens, indexItem)
+        const indexAEditar = listaItens.findIndex((c: ICategoria) => c.nome === categoria);
+        let copiaLista = [...listaItens];
+        copiaLista[indexAEditar].itens = copiaLista[indexAEditar].itens.filter((el: Item, i: number) => i !== indexItem);
+        setListaItens(copiaLista);
+    }
+
+    const somaItemDaDespensa = (indexCategoria: number, indexItem: number) => {
+        const indexAEditar = listaItens.findIndex((c: ICategoria, i: number) => i === indexCategoria);
+        let copiaLista = [...listaItens];
+        const quantidadeDespensa = copiaLista[indexAEditar].itens[indexItem].quantidadeDespensa;
+        copiaLista[indexAEditar].itens[indexItem].quantidadeDespensa = quantidadeDespensa + 1;
+        setListaItens(copiaLista);
+    }
+
+    const subtraiItemDaDespensa = (indexCategoria: number, indexItem: number) => {
+        const indexAEditar = listaItens.findIndex((c: ICategoria, i: number) => i === indexCategoria);
+        let copiaLista = [...listaItens];
+        const quantidadeDespensa = copiaLista[indexAEditar].itens[indexItem].quantidadeDespensa;
+        copiaLista[indexAEditar].itens[indexItem].quantidadeDespensa = quantidadeDespensa > 0 ? quantidadeDespensa - 1 : quantidadeDespensa;
+        setListaItens(copiaLista);
+    }
+
+    const somaItemDaLista = (indexCategoria: number, indexItem: number) => {
+        const indexAEditar = listaItens.findIndex((c: ICategoria, i: number) => i === indexCategoria);
+        let copiaLista = [...listaItens];
+        const quantidadeLista = copiaLista[indexAEditar].itens[indexItem].quantidadeLista;
+        copiaLista[indexAEditar].itens[indexItem].quantidadeLista = quantidadeLista + 1;
+        setListaItens(copiaLista);
+    }
+
+    const subtraiItemDaLista = (indexCategoria: number, indexItem: number) => {
+        const indexAEditar = listaItens.findIndex((c: ICategoria, i: number) => i === indexCategoria);
+        let copiaLista = [...listaItens];
+        const quantidadeLista = copiaLista[indexAEditar].itens[indexItem].quantidadeLista;
+        copiaLista[indexAEditar].itens[indexItem].quantidadeLista = quantidadeLista > 0 ? quantidadeLista - 1 : quantidadeLista;
+        setListaItens(copiaLista);
     }
 
     return (
-        <ContextoListaltens.Provider value={{ listaltens, adicionaItem, removeItem }}>
+        <ContextoListaItens.Provider value={{ 
+            listaItens, 
+            removeCategoria, 
+            adicionaItem, 
+            removeItem, 
+            somaItemDaDespensa, 
+            subtraiItemDaDespensa, 
+            somaItemDaLista, 
+            subtraiItemDaLista 
+        }}>
             {children}
-        </ContextoListaltens.Provider>
+        </ContextoListaItens.Provider>
     );
 }

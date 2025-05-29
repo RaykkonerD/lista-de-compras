@@ -8,12 +8,15 @@ interface Iitem {
   title: string;
 }
 
-interface IModalDespensa extends IListaContexto {
+interface IModalDespensa {
   visivel: boolean;
   setVisivel: Dispatch<SetStateAction<boolean>>;
+  listaItens: ICategoria[];
+  adicionaItem: (categoria: string, nomeItem: string) => void;
+  removeItem: (categoria: string, indexItem: number) => void;
 }
 
-export default function ModalDespensa({ visivel, setVisivel, listaltens, adicionaItem }: IModalDespensa) {
+export default function ModalDespensa({ visivel, setVisivel, listaItens, adicionaItem }: IModalDespensa) {
   const [categoria, setCategoria] = useState("");
   const [item, setItem] = useState("");
   const [naoPreenchido, setNaoPreenchido] = useState(false);
@@ -24,6 +27,7 @@ export default function ModalDespensa({ visivel, setVisivel, listaltens, adicion
     } else {
       setNaoPreenchido(false);
       adicionaItem(categoria, item);
+      setItem("");
       setVisivel(false);
     }
   }
@@ -49,10 +53,11 @@ export default function ModalDespensa({ visivel, setVisivel, listaltens, adicion
                 closeOnSubmit={false}
                 onChangeText={handleSelect}
                 onClear={() => handleSelect("")}
+                initialValue={{ id: '0' }}
                 textInputProps={{ style: { minWidth: 150 } }}
                 containerStyle={{ width: 175 }}
                 emptyResultText="Nada encontrado ainda."
-                dataSet={listaltens.map((item: ICategoria, indx: number) => {
+                dataSet={listaItens.map((item: ICategoria, indx: number) => {
                   return {
                     id: indx.toString(),
                     title: item.nome

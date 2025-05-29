@@ -1,16 +1,16 @@
 import ModalDespensa from "@/components/ModalDespensa";
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Text, TouchableOpacity, View, StyleSheet, FlatList } from "react-native";
 import { AntDesign, Feather } from "@expo/vector-icons";
-import { ContextoListaltens, ICategoria, IListaContexto, Item } from "@/contexts/ListaContexto";
+import { ContextoListaItens, ICategoria, IListaContexto, Item } from "@/contexts/ListaContexto";
 
 export default function Index() {
   const [modalVisivel, setModalVisivel] = useState<boolean>(false);
-  const contexto = useContext(ContextoListaltens);
+  const contexto = useContext(ContextoListaItens);
   if (!contexto) {
     throw new Error("ContextoListaltens deve estar dentro do provider.");
   }
-  const { listaltens, adicionaItem, removeItem } = contexto;
+  const { listaItens, removeCategoria, adicionaItem, removeItem, somaItemDaDespensa, subtraiItemDaDespensa } = contexto;
 
   const FAB = () => {
     return (
@@ -26,13 +26,17 @@ export default function Index() {
   return (
     <View
       style={{
-        flex: 1,
-        paddingTop: 10
+        flex: 1
       }}
     >
-      {listaltens.map(({ nome, itens }: ICategoria) => (
-        <View style={styles.categoriaView}>
-          <Text style={styles.categoriaNome}>{nome}</Text>
+      {listaItens.map(({ nome, itens }: ICategoria, indexCategoria: number) => (
+        <View style={styles.categoriaView} key={indexCategoria}>
+          <View style={styles.categoriaBarra}>
+            <Text style={styles.categoriaNome}>{nome}</Text>
+            <TouchableOpacity onPress={() => removeCategoria(indexCategoria)}>
+              <Feather name="x" size={24} color="#c9f0ff" />
+            </TouchableOpacity>
+          </View>
           <FlatList
             data={itens}
             renderItem={({ item, index }) => (
@@ -44,11 +48,11 @@ export default function Index() {
                   <Text>{item.nome}</Text>
                 </View>
                 <View style={{ flexDirection: "row", gap: 10 }}>
-                  <TouchableOpacity>
+                  <TouchableOpacity onPress={() => subtraiItemDaDespensa(indexCategoria, index)}>
                     <AntDesign name="minuscircleo" size={24} color="black" />
                   </TouchableOpacity>
                   <Text>{item.quantidadeDespensa}</Text>
-                  <TouchableOpacity>
+                  <TouchableOpacity onPress={() => somaItemDaDespensa(indexCategoria, index)}>
                     <AntDesign name="pluscircleo" size={24} color="black" />
                   </TouchableOpacity>
                 </View>
@@ -60,7 +64,7 @@ export default function Index() {
       <ModalDespensa
         visivel={modalVisivel}
         setVisivel={setModalVisivel}
-        listaltens={listaltens}
+        listaItens={listaItens}
         adicionaItem={adicionaItem}
         removeItem={removeItem}
       />
@@ -79,18 +83,22 @@ const styles = StyleSheet.create({
     right: 30,
   },
   categoriaView: {
-    marginBottom: 10
+    marginBottom: 35
   },
-  categoriaNome: {
+  categoriaBarra: {
     alignSelf: "stretch",
     padding: 5,
     backgroundColor: "#006494",
+    flexDirection: "row",
+    justifyContent: "space-between"
+  },
+  categoriaNome: {
     color: "#c9f0ff",
   },
   item: {
     flexDirection: "row",
-    paddingHorizontal: 10,
+    padding: 10,
     justifyContent: "space-between",
-    marginTop: 10
+    alignItems: "center",
   }
 });

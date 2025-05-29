@@ -1,42 +1,40 @@
 import { Text, TouchableOpacity, View, StyleSheet, FlatList, ListRenderItem } from "react-native";
 import { useContext, useState } from "react";
 import { AntDesign, Feather } from "@expo/vector-icons";
-import { ContextoListaltens, ICategoria } from "@/contexts/ListaContexto";
+import { ContextoListaItens, ICategoria } from "@/contexts/ListaContexto";
 
 export default function Index() {
-  const contexto = useContext(ContextoListaltens);
+  const contexto = useContext(ContextoListaItens);
   if (!contexto) {
     throw new Error("ContextoListaltens deve estar dentro do provider.");
   }
-  const { listaltens } = contexto;
+  const { listaItens, somaItemDaLista, subtraiItemDaLista } = contexto;
 
   return (
     <View
       style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
+        flex: 1
       }}
     >
-      {listaltens.map(({ nome, itens }: ICategoria) => (
-        <View style={styles.categoriaView}>
+      {listaItens.map(({ nome, itens }: ICategoria, indexCategoria: number) => (
+        <View style={styles.categoriaView} key={indexCategoria}>
           <Text style={styles.categoriaNome}>{nome}</Text>
           <FlatList
             data={itens}
             renderItem={({ item, index }) => (
-              <View style={styles.item}>
-                <View style={{ flexDirection: "row", gap: 20 }}>
-                  <TouchableOpacity style={{ marginRight: 15 }} onPress={() => removeItem(nome, index)}>
-                    <Feather name="trash-2" size={24} color="black" />
-                  </TouchableOpacity>
+              <View style={item.quantidadeLista < item.quantidadeDespensa ? styles.item : styles.itemCompleto}>
+                <View style={{ flexDirection: "row", gap: 20, alignItems: "center" }}>
+                  <Text style={{ marginRight: 15, paddingHorizontal: 15, paddingVertical: 7, borderRadius: 50, backgroundColor: "#006494", color: "#c9f0ff" }}>
+                    {item.quantidadeDespensa}
+                  </Text>
                   <Text>{item.nome}</Text>
                 </View>
                 <View style={{ flexDirection: "row", gap: 10 }}>
-                  <TouchableOpacity>
+                  <TouchableOpacity onPress={() => subtraiItemDaLista(indexCategoria, index)}>
                     <AntDesign name="minuscircleo" size={24} color="black" />
                   </TouchableOpacity>
-                  <Text>{item.quantidadeDespensa}</Text>
-                  <TouchableOpacity>
+                  <Text>{item.quantidadeLista}</Text>
+                  <TouchableOpacity onPress={() => somaItemDaLista(indexCategoria, index)}>
                     <AntDesign name="pluscircleo" size={24} color="black" />
                   </TouchableOpacity>
                 </View>
@@ -52,7 +50,7 @@ export default function Index() {
 
 const styles = StyleSheet.create({
   categoriaView: {
-    marginBottom: 10
+    marginBottom: 35
   },
   categoriaNome: {
     alignSelf: "stretch",
@@ -62,8 +60,15 @@ const styles = StyleSheet.create({
   },
   item: {
     flexDirection: "row",
-    paddingHorizontal: 10,
+    padding: 10,
     justifyContent: "space-between",
-    marginTop: 10
+    alignItems: "center",
+  },
+  itemCompleto : {
+    flexDirection: "row",
+    padding: 10,
+    justifyContent: "space-between",
+    backgroundColor: "#c9f0ff",
+    alignItems: "center",
   }
 });
