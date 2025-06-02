@@ -1,6 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { FlatList, Text, View } from "react-native";
 import { ContextoListaItens, ICategoria, IListaContexto, Item } from "@/contexts/ListaContexto";
+import BouncyCheckbox from "react-native-bouncy-checkbox";
 
 export default function Index() {
   const [listaCompras, setListaCompras] = useState<Item[]>([]);
@@ -11,8 +12,13 @@ export default function Index() {
   const { listaItens } = contexto;
 
   useEffect(() => {
-    for(let categoria of listaItens){
-      setListaCompras(listaCompras.concat(categoria.itens));
+    setListaCompras([]);
+    for (let categoria of listaItens) {
+      for (let item of categoria.itens) {
+        if (item.quantidadeLista < item.quantidadeDespensa) {
+          setListaCompras([...listaCompras.filter(e => e.nome != item.nome), item]);
+        }
+      }
     }
   }, [listaItens]);
 
@@ -27,15 +33,16 @@ export default function Index() {
       <FlatList
         data={listaCompras}
         renderItem={({ item, index }) => (
-              <View style={styles.item}>
-                <View style={{ flexDirection: "row", gap: 20, alignItems: "center" }}>
-                  <Text style={{ marginRight: 15, paddingHorizontal: 15, paddingVertical: 7, borderRadius: 50, backgroundColor: "#006494", color: "#c9f0ff" }}>
-                    {item.quantidadeDespensa}
-                  </Text>
-                  <Text>{item.nome}</Text>
-                </View>
-              </View>
-            )}>
+          <View style={{ flexDirection: "row", padding: 10, alignItems: "center" }}>
+            <BouncyCheckbox
+              size={25}
+              fillColor="#006494"
+              unFillColor="#ebf9ff"
+              text={(item.quantidadeDespensa - item.quantidadeLista) + " " + item.nome}
+              innerIconStyle={{ borderWidth: 2 }}
+            />
+          </View>
+        )} />
     </View>
   );
 }

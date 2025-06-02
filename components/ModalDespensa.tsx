@@ -53,7 +53,6 @@ export default function ModalDespensa({ visivel, setVisivel, listaItens, adicion
                 closeOnSubmit={false}
                 onChangeText={handleSelect}
                 onClear={() => handleSelect("")}
-                initialValue={{ id: '0' }}
                 textInputProps={{ style: { minWidth: 150 } }}
                 containerStyle={{ width: 175 }}
                 emptyResultText="Nada encontrado ainda."
