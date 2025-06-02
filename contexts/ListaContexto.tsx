@@ -1,4 +1,5 @@
-import { createContext, useState, ReactNode } from "react";
+import { createContext, useState, ReactNode, useEffect } from "react";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export interface Item {
     nome: string;
@@ -44,6 +45,33 @@ export function ListaContexto({ children }: ListaContextoProps) {
         ] 
     }];
     const [listaItens, setListaItens] = useState<ICategoria[]>([]);
+    const STORAGE_KEY = '@app/Compras';
+
+     useEffect(() => {
+        const loadState = async () => {
+            try {
+                const estadoSalvo = await AsyncStorage.getItem(STORAGE_KEY);
+                if (estadoSalvo) {
+                    setListaItens(JSON.parse(estadoSalvo));
+                }
+            } catch (error) {
+                console.error('Erro ao carregar estado:', error);
+            }
+        };
+        loadState();
+    }, []);
+
+    useEffect(() => {
+        const saveState = async () => {
+            try {                
+                await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(listaItens));
+            } catch (error) {
+                console.error('Erro ao salvar estado:', error);
+            }
+        };
+        
+        saveState();        
+    }, [listaItens]);
 
     const removeCategoria = (index: number) => {
         setListaItens(listaItens.filter((c: ICategoria, i: number) => i !== index));
